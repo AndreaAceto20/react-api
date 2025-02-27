@@ -10,18 +10,51 @@ const InitialPosts = [
     }
 ];
 
+const InitialFormData =
+{
+    titolo: "",
+    author: "",
+    contenuto: "",
+    tags: ""
+};
+
+
 export default function Main() {
     const [posts, setPosts] = useState(InitialPosts)
+    const [NewPost, setNewPost] = useState(InitialFormData);
     function fetchPosts() {
         axios.get('http://localhost:3000/posts')
             .then((res) => {
                 // console.log(res.data);
 
                 setPosts(res.data);
-                console.log(posts);
+                // console.log(posts);
 
 
             })
+    }
+
+    function handleFormData(e) {
+        const value = e.target.value;
+        setNewPost((currentFormData) => ({
+            ...currentFormData,
+            [e.target.name]: value,
+        }));
+    }
+    function handleSubmit(e) {
+        e.preventDefault();
+
+
+        axios.post("http://localhost:3000/posts", NewPost)
+            .then((res) =>
+                setPosts((post) => [...post, res.data])
+
+            )
+            .catch(err => {
+                console.log(err)
+            })
+
+        setNewPost(InitialFormData);
     }
 
     useEffect(fetchPosts, []);
@@ -29,6 +62,35 @@ export default function Main() {
     return (
         <>
             <main>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        name="titolo"
+                        value={NewPost.titolo}
+                        onChange={handleFormData}
+                        placeholder="nome" />
+                    <input
+                        type="text"
+                        name="author"
+                        value={NewPost.author}
+                        onChange={handleFormData}
+                        placeholder="autore" />
+                    <input
+                        type="text"
+                        name="tags"
+                        value={NewPost.tags}
+                        onChange={handleFormData}
+                        placeholder="categoria" />
+                    <textarea
+                        name="contenuto"
+                        id=""
+                        placeholder="contenuto post"
+                        value={NewPost.contenuto}
+                        onChange={handleFormData}
+                    ></textarea>
+
+                    <button>Invia</button>
+                </form>
 
                 {
                     posts.map((post) => (
